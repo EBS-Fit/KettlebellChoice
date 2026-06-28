@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welche Kettlebell passt zu dir? | EBS-Fit</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --red: #ff3a2f;
+            --blue: #2c2ef4;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f9; color: #2a2a2a; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; margin-bottom: 50px; padding-top: 40px; }
+        .logo { font-size: 24px; font-weight: 600; margin-bottom: 15px; background: linear-gradient(135deg, var(--red) 0%, var(--blue) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .badge { background: #f0f0f0; padding: 10px 20px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #999; display: inline-block; margin-bottom: 20px; }
+        h1 { font-size: 42px; font-weight: 700; margin-bottom: 15px; }
+        .subtitle { font-size: 18px; color: #666; margin-bottom: 30px; }
+        .quiz-wrapper { background: white; border-radius: 12px; padding: 50px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 40px; }
+        .progress-bar { width: 100%; height: 3px; background: #e0e0e0; margin-bottom: 40px; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--red) 0%, var(--blue) 100%); transition: width 0.3s ease; }
+        .question { display: none; }
+        .question.active { display: block; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .question-num { font-size: 13px; font-weight: 600; color: var(--blue); text-transform: uppercase; margin-bottom: 10px; }
+        .question-text { font-size: 28px; font-weight: 700; margin-bottom: 30px; }
+        .options { display: flex; flex-direction: column; gap: 15px; }
+        .option-label { display: flex; align-items: center; padding: 18px 24px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 500; transition: all 0.2s ease; background: white; }
+        .option-label:hover { border-color: var(--blue); background: rgba(44,46,244,0.02); }
+        .option-label input { margin-right: 12px; cursor: pointer; width: 20px; height: 20px; }
+        .option-label input:checked ~ span { color: var(--red); font-weight: 600; }
+        .option-label input:checked { accent-color: var(--red); }
+        .buttons { display: flex; gap: 15px; margin-top: 40px; justify-content: space-between; }
+        .btn { padding: 14px 32px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; }
+        .btn-next { background: linear-gradient(135deg, var(--red) 0%, #ff5a4f 100%); color: white; flex-grow: 1; }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,58,47,0.3); }
+        .btn-prev { background: white; color: #2a2a2a; border: 2px solid #e0e0e0; }
+        .btn-prev:hover { border-color: var(--blue); }
+        .results { display: none; text-align: center; }
+        .results.active { display: block; }
+        .big-number { font-size: 72px; font-weight: 700; color: var(--red); margin: 30px 0; }
+        .result-box { background: #f9f9f9; padding: 30px; border-radius: 8px; margin: 30px 0; text-align: left; }
+        .cta-box { background: linear-gradient(135deg, rgba(255,58,47,0.08) 0%, rgba(44,46,244,0.08) 100%); padding: 40px; border-radius: 12px; margin: 30px 0; }
+        .cta-box h3 { font-size: 24px; margin-bottom: 15px; }
+        .cta-box p { font-size: 16px; color: #666; margin-bottom: 25px; line-height: 1.8; }
+        .btn-cta { background: linear-gradient(135deg, var(--red) 0%, #ff5a4f 100%); color: white; padding: 16px 40px; display: inline-block; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,58,47,0.3); }
+        .code { background: white; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: var(--red); font-weight: 700; }
+        @media (max-width: 768px) { h1 { font-size: 32px; } .quiz-wrapper { padding: 30px 20px; } .buttons { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">EBS-FIT</div>
+            <div class="badge">⏱ 5 Minuten Kettlebell Quiz</div>
+            <h1>Welche Kettlebell passt zu dir?</h1>
+            <p class="subtitle">Nach 7 einfachen Fragen weißt du ganz genau, welche zu dir passt.</p>
+        </header>
+
+        <div class="quiz-wrapper">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 0%"></div>
+            </div>
+
+            <form id="quiz">
+                <!-- Q1 -->
+                <div class="question active" data-q="1">
+                    <div class="question-num">Frage 1 von 7</div>
+                    <div class="question-text">Welches Geschlecht trifft auf dich zu?</div>
+                    <div class="options">
+                        <label class="option-label">
+                            <input type="radio" name="gender" value="female" required>
+                            <span>Frau</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="gender" value="male" required>
+                            <span>Mann</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="question" data-q="2">
+                    <div class="question-num">Frage 2 von 7</div>
+                    <div class="question-text">Wie aktiv bist du aktuell?</div>
+                    <div class="options">
+                        <label class="option-label">
+                            <input type="radio" name="activity" value="very-active" required>
+                            <span>Ich trainiere 3x pro Woche oder mehr</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="activity" value="moderate" required>
+                            <span>Ich trainiere 1–2x pro Woche</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="activity" value="none" required>
+                            <span>Ich trainiere aktuell nicht</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="question" data-q="3">
+                    <div class="question-num">Frage 3 von 7</div>
+                    <div class="question-text">Wie ist deine Erfahrung mit Gewichtstraining?</div>
+                    <div class="options">
+                        <label class="option-label">
+                            <input type="radio" name="exp-level" value="never" required>
+                            <span>Noch nie trainiert</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="exp-level" value="some" required>
+                            <span>Etwas Erfahrung (Fitness, Sport)</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="exp-level" value="regular" required>
+                            <span>Regelmäßig mit Gewichten trainiert</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="question" data-q="4">
+                    <div class="question-num">Frage 4 von 7</div>
+                    <div class="question-text">Hast du bereits mit Kettlebells trainiert?</div>
+                    <div class="options">
+                        <label class="option-label">
+                            <input type="radio" name="kb-exp" value="never" required>
+                            <span>Nein, noch nie</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="kb-exp" value="some" required>
+                            <span>Ja, ein wenig (1-2x ausprobiert)</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="kb-exp" value="regular" required>
+                            <span>Ja, regelmäßig</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="question" data-q="5">
+                    <div class="question-num">Frage 5 von 7</div>
+                    <div class="question-text">Was ist dein Hauptziel?</div>
+                    <div class="options">
+                        <label class="option-label">
+                            <input type="radio" name="goal" value="weight-loss" required>
+                            <span>Abnehmen & Ausdauer</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="goal" value="strength" required>
+                            <span>Kraft & Muskelaufbau</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="goal" value="balance" required>
+                            <span>Allgemeine Fitness & Beweglichkeit</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="question" data-q="6">
+                    <div class="question-num">Frage 6 von 7</div>
+                    <div class="question-text">Kannst du aktuell diese Aufgaben problemlos machen?</div>
+                    <div class="options">
+                        <label class="option-label">
+                            <input type="checkbox" name="daily-tasks" value="squats">
+                            <span>10 Kniebeugen hintereinander</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="checkbox" name="daily-tasks" value="crate">
+                            <span>Einen Getränkekasten mit einer Hand halten</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="checkbox" name="daily-tasks" value="bags">
+                            <span>Mehrere Einkaufstaschen gleichzeitig tragen</span>
+                        </label>
+                    </div>
+                    <p style="font-size: 13px; color: #999; margin-top: 15px; text-align: center;">Diese Frage ist optional – du kannst weiter gehen</p>
+                </div>
+
+                <!-- Q7 -->
+                <div class="question" data-q="7">
+                    <div class="question-num">Frage 7 von 7</div>
+                    <div class="question-text">Was ist deine größte Herausforderung?</div>
+                    <div class="options">
+                        <label class="option-label">
+                            <input type="radio" name="challenge" value="choice" required>
+                            <span>Ich weiß nicht, welche Kettlebell passt</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="challenge" value="training" required>
+                            <span>Ich weiß nicht, wie ich trainieren soll</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="challenge" value="motivation" required>
+                            <span>Mir fehlt Zeit oder Motivation</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="challenge" value="fear" required>
+                            <span>Ich habe Angst, etwas falsch zu machen</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button type="button" class="btn btn-prev" id="prev" style="display: none;">← Zurück</button>
+                    <button type="button" class="btn btn-next" id="next">Weiter →</button>
+                </div>
+            </form>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <h2>Dein Kettlebell-Ergebnis</h2>
+                <div class="big-number" id="weight">16 kg</div>
+                <p id="recommendation" style="font-size: 18px; color: #666; margin-bottom: 40px;"></p>
+
+                <div class="result-box">
+                    <h3 style="font-size: 14px; text-transform: uppercase; color: var(--blue); margin-bottom: 15px;">Dein Profil</h3>
+                    <p id="profile"></p>
+                </div>
+
+                <div class="result-box">
+                    <h3 style="font-size: 14px; text-transform: uppercase; color: var(--blue); margin-bottom: 15px;">Warum dieses Gewicht?</h3>
+                    <p id="reason"></p>
+                </div>
+
+                <div class="cta-box">
+                    <h3>Bestelle deine Kettlebell</h3>
+                    <p>Hochwertige Kettlebells findest du bei <strong>HQ-Germany</strong>. Mit deinem persönlichen Code <span class="code">EBS-Fit10</span> sparst du <strong>10% Rabatt</strong>!</p>
+                    <button class="btn-cta" onclick="window.open('https://hq-germany.com', '_blank')">Zum HQ-Germany Shop →</button>
+                </div>
+
+                <div class="cta-box" style="background: linear-gradient(135deg, rgba(44,46,244,0.08) 0%, rgba(255,58,47,0.08) 100%);">
+                    <h3>Du möchtest noch mehr?</h3>
+                    <p>Buche dir meinen <strong>Interaktiven Kettlebell-Online-Workshop</strong> und lerne, wie du mit deiner neuen Kettlebell schnell Ergebnisse siehst – ganz auf dein Fitness-Niveau abgestimmt. Mit dem richtigen Training, deinem Zyklus und deiner Hormonbalance.</p>
+                    <button class="btn-cta" onclick="window.open('https://myablefy.com/s/ebs-fit/interaktiver-kettlebell-online-workshop-am-04-07-2026-be0bdedd/payment', '_blank')">Workshop buchen →</button>
+                </div>
+
+                <div class="buttons">
+                    <button type="button" class="btn btn-prev" onclick="location.reload()">← Quiz neu starten</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let current = 1;
+        const form = document.getElementById('quiz');
+        const next = document.getElementById('next');
+        const prev = document.getElementById('prev');
+        const results = document.getElementById('results');
+
+        next.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const q = document.querySelector(`.question[data-q="${current}"]`);
+            const inputs = q.querySelectorAll('input[required]');
+            const inputName = inputs.length > 0 ? inputs[0].name : null;
+            
+            if (inputName) {
+                const checked = q.querySelector(`input[name="${inputName}"]:checked`);
+                if (!checked) {
+                    alert('Bitte beantworte diese Frage');
+                    return;
+                }
+            }
+
+            if (current === 7) {
+                showResults();
+            } else {
+                current++;
+                updateUI();
+            }
+        });
+
+        prev.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (current > 1) {
+                current--;
+                updateUI();
+            }
+        });
+
+        function updateUI() {
+            document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+            document.querySelector(`.question[data-q="${current}"]`).classList.add('active');
+            
+            document.getElementById('progress').style.width = (current / 7 * 100) + '%';
+            prev.style.display = current === 1 ? 'none' : 'block';
+            next.textContent = current === 7 ? 'Ergebnis ansehen →' : 'Weiter →';
+            window.scrollTo(0, 0);
+        }
+
+        function showResults() {
+            const data = new FormData(form);
+            const gender = data.get('gender');
+            const exp = data.get('exp-level');
+            const kb = data.get('kb-exp');
+            const activity = data.get('activity');
+
+            let weight = 16;
+            let reason = '';
+
+            const totalExp = (exp === 'never' ? 0 : exp === 'some' ? 1 : 2) + 
+                            (kb === 'never' ? 0 : kb === 'some' ? 1 : 2);
+
+            if (totalExp <= 1) {
+                weight = gender === 'female' ? 8 : 12;
+                reason = 'Du bist noch neu beim Kettlebell-Training. Mit ' + weight + ' kg lernst du die richtige Technik und siehst schnell Erfolge.';
+            } else if (totalExp <= 3) {
+                weight = gender === 'female' ? 12 : 16;
+                reason = 'Du hast etwas Erfahrung. Mit ' + weight + ' kg trainierst du effektiv und machst gute Fortschritte.';
+            } else {
+                weight = gender === 'female' ? 16 : 20;
+                reason = 'Du trainierst regelmäßig und hast Kettlebell-Erfahrung. Mit ' + weight + ' kg hast du eine perfekte Herausforderung.';
+            }
+
+            if (activity === 'none' && weight > 8) {
+                weight -= 2;
+                reason += ' Da du aktuell nicht trainierst, starten wir etwas leichter, um wieder in Routine zu kommen.';
+            }
+
+            document.getElementById('weight').textContent = weight + ' kg';
+            document.getElementById('recommendation').textContent = weight + ' kg ist deine ideale Kettlebell. Diese Gewicht bietet dir die perfekte Balance zwischen Herausforderung und sicherer Ausführung.';
+            document.getElementById('reason').textContent = reason;
+            document.getElementById('profile').textContent = 'Geschlecht: ' + (gender === 'female' ? 'Frau' : 'Mann') + ' | Trainings-Erfahrung: ' + exp + ' | Kettlebell-Erfahrung: ' + kb + ' | Aktivität: ' + activity;
+            
+            form.style.display = 'none';
+            results.classList.add('active');
+        }
+    </script>
+
+    <footer style="text-align: center; padding: 40px 20px; border-top: 1px solid #e0e0e0; color: #999; font-size: 14px; margin-top: 50px;">
+        <p>&copy; 2026 EBS-Fit | Bianca Neumeier | <a href="#" style="color: #ff3a2f; text-decoration: none;">ebs-fit.de</a></p>
+    </footer>
+</body>
+</html>
