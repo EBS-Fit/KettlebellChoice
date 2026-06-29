@@ -367,19 +367,25 @@
             }
 
             if (activity === 'light' && weight > 8) {
-                weight -= 1;
+                weight -= 2;
                 reason += ' Da du leicht aktiv bist, ist ein etwas leichteres Gewicht ein guter Start.';
             }
 
             if (grip === 'weak' && weight > 8) {
-                weight -= 1;
+                weight -= 2;
                 reason += ' Mit schwächerer Handkraft empfehle ich ein etwas leichteres Gewicht.';
             }
 
             if (challenge === 'fear' && weight > 8) {
-                weight -= 1;
+                weight -= 2;
                 reason += ' Bei Unsicherheit starten wir mit einem leichteren Gewicht für mehr Sicherheit.';
             }
+
+            // Stelle sicher, dass das Gewicht gerade ist und zwischen 4 und 22 kg liegt
+            if (weight % 2 !== 0) {
+                weight = weight > 13 ? weight + 1 : weight - 1;
+            }
+            weight = Math.max(4, Math.min(22, weight));
 
             document.getElementById('weight').textContent = weight + ' kg';
             document.getElementById('recommendation').textContent = weight + ' kg ist deine ideale Kettlebell. Diese Gewicht bietet dir die perfekte Balance zwischen Herausforderung und sicherer Ausführung.';
@@ -403,6 +409,9 @@
                 recommendation: weight + ' kg',
                 recommendation_reason: reason
             };
+
+            console.log('Quiz Daten vor fetch:', quizData);
+            console.log('JSON String:', JSON.stringify(quizData));
 
             // Sende Daten an Google Apps Script
             fetch('https://script.google.com/macros/s/AKfycbx-W-KKVA_8LhWn1ys-_5MPv5P2fkqziZPS05WX4hCaCZLNNaE32x_csTuTssGiwOnGUA/exec', {
