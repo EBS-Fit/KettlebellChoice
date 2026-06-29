@@ -407,23 +407,19 @@
             // Sende Daten an Google Apps Script
             fetch('https://script.google.com/macros/s/AKfycbx-W-KKVA_8LhWn1ys-_5MPv5P2fkqziZPS05WX4hCaCZLNNaE32x_csTuTssGiwOnGUA/exec', {
                 method: 'POST',
-                body: JSON.stringify(quizData),
-                mode: 'no-cors'
+                body: JSON.stringify(quizData)
             })
-            .then(response => {
-                console.log('Daten erfolgreich versendet!', response);
-                setTimeout(() => {
-                    loading.classList.remove('show');
-                    results.classList.add('active');
-                }, 1500);
+            .then(response => response.text())
+            .then(text => {
+                console.log('Erfolgreich versendet:', text);
+                loading.classList.remove('show');
+                results.classList.add('active');
             })
             .catch(error => {
                 console.error('Fehler beim Versenden:', error);
                 // Zeige Results trotzdem an
-                setTimeout(() => {
-                    loading.classList.remove('show');
-                    results.classList.add('active');
-                }, 1500);
+                loading.classList.remove('show');
+                results.classList.add('active');
             });
         }
     </script>
